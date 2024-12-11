@@ -10,8 +10,8 @@ on:
 
 # Environment variables used across jobs
 env:
-  DOTNET_VERSION: '8.0.x'    # Matches your project's .NET version
-  SOLUTION_PATH: '*.csproj'   # Path to your solution/project file
+  DOTNET_VERSION: '8.0.x'
+  PROJECT_NAME: 'software-engineering--blazor-pipeline.csproj'
 
 jobs:
   build-and-test:
@@ -19,38 +19,32 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    # Check out the repository code
     - name: Checkout Repository
       uses: actions/checkout@v4
     
-    # Setup .NET environment
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
-    # Restore NuGet packages
     - name: Restore Dependencies
-      run: dotnet restore ${{ env.SOLUTION_PATH }}
+      run: dotnet restore ${{ env.PROJECT_NAME }}
     
-    # Run code formatting check
+    # Updated code formatting check
     - name: Check Code Formatting
       run: |
         dotnet tool install -g dotnet-format
-        dotnet format --verify-no-changes --verbosity diagnostic
+        dotnet format ${{ env.PROJECT_NAME }} --verify-no-changes --verbosity diagnostic
     
-    # Build the project
     - name: Build
-      run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
+      run: dotnet build ${{ env.PROJECT_NAME }} --configuration Release --no-restore
     
-    # Install testing coverage tool
     - name: Install Coverage Tool
       run: dotnet tool install --global coverlet.console
     
-    # Run tests with coverage
     - name: Run Tests with Coverage
       run: |
-        dotnet test ${{ env.SOLUTION_PATH }} \
+        dotnet test ${{ env.PROJECT_NAME }} \
           --configuration Release \
           --no-build \
           --verbosity normal \
@@ -60,9 +54,8 @@ jobs:
           /p:Threshold=80 \
           /p:ThresholdType=line,branch,method
     
-    # Optional: Upload coverage report as artifact
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v3
       with:
         name: code-coverage-report
-        path: ./coverage/coverage.opencover.xml 
+        path: ./coverage/coverage.opencover.xml
