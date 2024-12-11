@@ -1,10 +1,19 @@
-using software_engineering__blazor_pipeline.Components;
+using Microsoft.EntityFrameworkCore;
+using TodoTestSuite.Components;
+using TodoTestSuite.Components.Services;
+using TodoTestSuite.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddDbContext<TodoDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<TodoDBService>();
+
 
 var app = builder.Build();
 

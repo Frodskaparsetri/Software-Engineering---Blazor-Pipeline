@@ -11,7 +11,8 @@ on:
 # Environment variables used across jobs
 env:
   DOTNET_VERSION: '8.0.x'
-  PROJECT_NAME: 'software-engineering--blazor-pipeline.csproj'
+  SOLUTION_FILE: 'TodoTestSuite.sln'
+  PROJECT_PATH: 'src/TodoTestSuite/TodoTestSuite.csproj'
 
 jobs:
   build-and-test:
@@ -28,23 +29,23 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
     - name: Restore Dependencies
-      run: dotnet restore ${{ env.PROJECT_NAME }}
+      run: dotnet restore ${{ env.SOLUTION_FILE }}
     
     # Updated code formatting check
     - name: Check Code Formatting
       run: |
         dotnet tool install -g dotnet-format
-        dotnet format ${{ env.PROJECT_NAME }} --verify-no-changes --verbosity diagnostic
+        dotnet format ${{ env.SOLUTION_FILE }} --verify-no-changes --verbosity diagnostic
     
     - name: Build
-      run: dotnet build ${{ env.PROJECT_NAME }} --configuration Release --no-restore
+      run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
     
     - name: Install Coverage Tool
       run: dotnet tool install --global coverlet.console
     
     - name: Run Tests with Coverage
       run: |
-        dotnet test ${{ env.PROJECT_NAME }} \
+        dotnet test tests/TodoTestSuite.Tests/TodoTestSuite.Tests.csproj \
           --configuration Release \
           --no-build \
           --verbosity normal \
