@@ -1,0 +1,68 @@
+# Name of the GitHub Actions workflow
+name: .NET Blazor CI Pipeline
+
+# Defines when the workflow will run
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# Environment variables used across jobs
+env:
+  DOTNET_VERSION: '8.0.x'    # Matches your project's .NET version
+  SOLUTION_PATH: '*.csproj'   # Path to your solution/project file
+
+jobs:
+  build-and-test:
+    name: Build, Test and Analyze
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Check out the repository code
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    
+    # Setup .NET environment
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    # Restore NuGet packages
+    - name: Restore Dependencies
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
+    
+    # Run code formatting check
+    - name: Check Code Formatting
+      run: |
+        dotnet tool install -g dotnet-format
+        dotnet format --verify-no-changes --verbosity diagnostic
+    
+    # Build the project
+    - name: Build
+      run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
+    
+    # Install testing coverage tool
+    - name: Install Coverage Tool
+      run: dotnet tool install --global coverlet.console
+    
+    # Run tests with coverage
+    - name: Run Tests with Coverage
+      run: |
+        dotnet test ${{ env.SOLUTION_PATH }} \
+          --configuration Release \
+          --no-build \
+          --verbosity normal \
+          /p:CollectCoverage=true \
+          /p:CoverletOutputFormat=opencover \
+          /p:CoverletOutput=./coverage/ \
+          /p:Threshold=80 \
+          /p:ThresholdType=line,branch,method
+    
+    # Optional: Upload coverage report as artifact
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: code-coverage-report
+        path: ./coverage/coverage.opencover.xml 
