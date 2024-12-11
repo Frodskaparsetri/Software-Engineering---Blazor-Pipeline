@@ -6,9 +6,9 @@ namespace TodoTestSuite.Database;
 
 public class TodoDbContext : DbContext
 {
-  public TodoDbContext(DbContextOptions<TodoDbContext> options) : base(options)
-  {
-  }
+    public TodoDbContext(DbContextOptions<TodoDbContext> options) : base(options)
+    {
+    }
 
-  public DbSet<TodoItem> Todos { get; set; }
+    public DbSet<TodoItem> Todos { get; set; }
 }
