@@ -25,14 +25,20 @@ public abstract class DatabaseFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        DockerComposer.Up();
+        var root = Directory.GetCurrentDirectory();
+        var pathToFile = Path.Combine(root, "docker-compose.yml");
+        DockerComposer.Up(pathToFile);
+
         await ResetDatabaseAsync();
     }
 
     public async Task DisposeAsync()
     {
         await context.DisposeAsync();
-        DockerComposer.Down();
+
+        var root = Directory.GetCurrentDirectory();
+        var pathToFile = Path.Combine(root, "docker-compose.yml");
+        DockerComposer.Down(pathToFile);
     }
 
     public async Task ResetDatabaseAsync()
