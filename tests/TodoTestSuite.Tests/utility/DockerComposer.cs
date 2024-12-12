@@ -27,7 +27,7 @@ public class DockerComposer
 
         if (process.ExitCode != 0)
         {
-            throw new Exception($"Docker compose failed: {error}");
+            throw new Exception($"Docker compose failed: {error}\nOutput: {output}");
         }
     }
 
