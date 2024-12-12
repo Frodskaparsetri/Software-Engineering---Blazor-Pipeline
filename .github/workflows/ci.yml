@@ -45,13 +45,11 @@ jobs:
           --configuration Release \
           --no-build \
           --verbosity normal \
-          --collect:"XPlat Code Coverage" \
-          /p:CollectCoverage=true \
-          /p:CoverletOutputFormat=opencover \
-          /p:CoverletOutput="./coverage/coverage.opencover.xml"
+          --collect:"Code Coverage;Format=Xml;CoverageFileName=coverage.xml" \
+          --results-directory ./coverage
     
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v3
       with:
         name: code-coverage-report
-        path: ./coverage/coverage.opencover.xml
+        path: ./coverage/coverage.xml
