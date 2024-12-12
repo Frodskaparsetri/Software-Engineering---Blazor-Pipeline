@@ -41,13 +41,14 @@ jobs:
 
     
     - name: Run Tests with Coverage
-      run: dotnet test  \
+      run: dotnet test ${{ env.SOLUTION_FILE }} \
           --configuration Release \
           --no-build \
           --verbosity normal \
           --collect:"XPlat Code Coverage" \
-          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover \
-          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.CoverletOutput="./coverage/coverage.opencover.xml"
+          /p:CollectCoverage=true \
+          /p:CoverletOutputFormat=opencover \
+          /p:CoverletOutput="./coverage/coverage.opencover.xml"
     
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v3
