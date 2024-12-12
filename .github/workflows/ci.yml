@@ -41,12 +41,7 @@ jobs:
 
     
     - name: Run Tests with Coverage
-      run: dotnet test ${{ env.SOLUTION_FILE }} \
-          --configuration Release \
-          --no-build \
-          --verbosity normal \
-          --collect:"Code Coverage;Format=Xml;CoverageFileName=coverage.xml" \
-          --results-directory ./coverage
+      run: dotnet test "${{ env.SOLUTION_FILE }}" --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory:"./coverage"
     
     - name: Upload Coverage Report
       uses: actions/upload-artifact@v3
