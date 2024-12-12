@@ -1,6 +1,3 @@
-
-
-
 using Microsoft.EntityFrameworkCore;
 using TodoTestSuite.Database;
 using TodoTestSuite.Tests.utility;
@@ -25,8 +22,7 @@ public abstract class DatabaseFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        var root = Directory.GetCurrentDirectory();
-        var pathToFile = Path.Combine(root, "docker-compose.yml");
+        var pathToFile = Path.Combine(AppContext.BaseDirectory, "docker-compose.yml");
         DockerComposer.Up(pathToFile);
 
         await ResetDatabaseAsync();
@@ -36,8 +32,7 @@ public abstract class DatabaseFixture : IAsyncLifetime
     {
         await context.DisposeAsync();
 
-        var root = Directory.GetCurrentDirectory();
-        var pathToFile = Path.Combine(root, "docker-compose.yml");
+        var pathToFile = Path.Combine(AppContext.BaseDirectory, "docker-compose.yml");
         DockerComposer.Down(pathToFile);
     }
 

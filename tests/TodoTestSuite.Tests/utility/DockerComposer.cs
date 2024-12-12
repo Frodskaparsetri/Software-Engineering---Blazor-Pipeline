@@ -1,9 +1,12 @@
 namespace TodoTestSuite.Tests.utility;
+using System.IO;
 
 public class DockerComposer
 {
-    public static void Up(string pathToFile = "./docker-compose.yml")
+    public static void Up(string pathToFile)
     {
+        var workingDirectory = Path.GetDirectoryName(pathToFile);
+
         var process = new System.Diagnostics.Process
         {
             StartInfo = new System.Diagnostics.ProcessStartInfo
@@ -12,7 +15,8 @@ public class DockerComposer
                 Arguments = $"-f {pathToFile} up -d --wait --remove-orphans",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                UseShellExecute = false
+                UseShellExecute = false,
+                WorkingDirectory = workingDirectory
             }
         };
 
@@ -27,8 +31,10 @@ public class DockerComposer
         }
     }
 
-    public static void Down(string pathToFile = "./docker-compose.yml")
+    public static void Down(string pathToFile)
     {
+        var workingDirectory = Path.GetDirectoryName(pathToFile);
+
         var process = new System.Diagnostics.Process
         {
             StartInfo = new System.Diagnostics.ProcessStartInfo
@@ -37,7 +43,8 @@ public class DockerComposer
                 Arguments = $"-f {pathToFile} down --remove-orphans",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                UseShellExecute = false
+                UseShellExecute = false,
+                WorkingDirectory = workingDirectory
             }
         };
 
