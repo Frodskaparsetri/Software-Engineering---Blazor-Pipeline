@@ -1,43 +1,59 @@
-# Name of the GitHub Actions workflow
+# This is a GitHub Actions workflow file that automates the build, test, and analysis process
+# for a .NET Blazor application
+
+# Gives a descriptive name to this workflow that appears in the GitHub Actions UI
 name: .NET Blazor CI Pipeline
 
-# Defines when the workflow will run
+# Specifies when this workflow should be triggered
+# It runs when:
+#   - Someone pushes code to the main branch
+#   - Someone opens a pull request targeting the main branch
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
 
-# Environment variables used across jobs
+# Defines global environment variables that can be used throughout the workflow
+# These help avoid repetition and make it easier to update values in one place
 env:
-  DOTNET_VERSION: '8.0.x'
-  SOLUTION_FILE: 'TodoTestSuite.sln'
-  PROJECT_PATH: 'src/TodoTestSuite/TodoTestSuite.csproj'
+  DOTNET_VERSION: '8.0.x'          # The version of .NET to use
+  SOLUTION_FILE: 'TodoTestSuite.sln'    # The main solution file for the project
+  PROJECT_PATH: 'src/TodoTestSuite/TodoTestSuite.csproj'  # Path to the main project file
 
+# Defines the different jobs that make up this workflow
 jobs:
+  # This job handles building, testing, and analyzing the code
   build-and-test:
     name: Build, Test and Analyze
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest    # Specifies that this job runs on the latest Ubuntu virtual machine
     
+    # Lists the sequence of steps to be executed in this job
     steps:
+    # Step 1: Checks out the repository code to the runner
     - name: Checkout Repository
       uses: actions/checkout@v4
     
+    # Step 2: Sets up the specified version of .NET on the runner
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
+    # Step 3: Restores all NuGet package dependencies for the solution
     - name: Restore Dependencies
       run: dotnet restore ${{ env.SOLUTION_FILE }}
     
+    # Step 4: Verifies that all code follows the project's formatting standards
     - name: Check Code Formatting
       run: |
         dotnet tool install -g dotnet-format
         dotnet format ${{ env.SOLUTION_FILE }} --verify-no-changes --verbosity diagnostic
     
+    # Step 5: Builds the entire solution in Release configuration
     - name: Build
       run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
 
+    # Step 6: Runs all tests in the solution
     - name: Run Tests
       run: dotnet test "${{ env.SOLUTION_FILE }}" --configuration Release --no-build --verbosity normal
