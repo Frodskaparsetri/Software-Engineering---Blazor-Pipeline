@@ -40,8 +40,7 @@ jobs:
       run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
     
     - name: Run Tests with Coverage
-      run: |
-        dotnet test
+      run: dotnet test -v n
     
     # - name: Upload Coverage Report
     #   uses: actions/upload-artifact@v3
