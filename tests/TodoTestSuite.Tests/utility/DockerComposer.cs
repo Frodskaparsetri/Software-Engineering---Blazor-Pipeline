@@ -5,6 +5,10 @@ public class DockerComposer
 {
     public static void Up(string pathToFile)
     {
+        Console.WriteLine($"Looking for docker-compose file at: {pathToFile}");
+        Console.WriteLine($"File exists: {File.Exists(pathToFile)}");
+        Console.WriteLine($"Directory contents: {string.Join(", ", Directory.GetFiles(Path.GetDirectoryName(pathToFile)))}");
+
         var workingDirectory = Path.GetDirectoryName(pathToFile);
 
         var process = new System.Diagnostics.Process
