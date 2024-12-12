@@ -16,23 +16,17 @@ public class DockerComposer
             Console.WriteLine($"Directory exists: {Directory.Exists(directory)}");
             if (Directory.Exists(directory))
             {
-                Console.WriteLine($"Directory contents: {string.Join(", ", Directory.GetFiles(directory).Take(5))}");
+                Console.WriteLine($"Directory contents: {string.Join(", ", Directory.GetFiles(directory))}");
             }
         }
 
-        Console.WriteLine("Checking docker-compose location:");
-        var dockerComposePath = "/usr/bin/docker-compose";
-        Console.WriteLine($"docker-compose path: {dockerComposePath}");
+        var workingDirectory = directory ?? throw new InvalidOperationException("Directory path is null");
 
-        var workingDirectory = directory ?? Directory.GetCurrentDirectory();
-        Console.WriteLine($"Starting process with working directory: {workingDirectory}");
-        Console.WriteLine($"Command: {dockerComposePath} -f {pathToFile} up -d --wait --remove-orphans");
-
-        var process = new Process
+        var process = new System.Diagnostics.Process
         {
-            StartInfo = new ProcessStartInfo
+            StartInfo = new System.Diagnostics.ProcessStartInfo
             {
-                FileName = dockerComposePath,
+                FileName = "docker-compose",
                 Arguments = $"-f {pathToFile} up -d --wait --remove-orphans",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -41,8 +35,21 @@ public class DockerComposer
             }
         };
 
+        Console.WriteLine($"Starting process with working directory: {workingDirectory}");
+        Console.WriteLine($"Command: docker-compose {process.StartInfo.Arguments}");
+
         process.Start();
+        var output = process.StandardOutput.ReadToEnd();
+        var error = process.StandardError.ReadToEnd();
         process.WaitForExit();
+
+        Console.WriteLine($"Process output: {output}");
+        Console.WriteLine($"Process error: {error}");
+
+        if (process.ExitCode != 0)
+        {
+            throw new Exception($"Docker compose failed: {error}\nOutput: {output}");
+        }
     }
 
     public static void Down(string pathToFile)
