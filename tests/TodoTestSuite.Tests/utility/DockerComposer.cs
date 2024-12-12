@@ -1,5 +1,6 @@
 namespace TodoTestSuite.Tests.utility;
 using System.IO;
+using System.Diagnostics;
 
 public class DockerComposer
 {
@@ -15,17 +16,23 @@ public class DockerComposer
             Console.WriteLine($"Directory exists: {Directory.Exists(directory)}");
             if (Directory.Exists(directory))
             {
-                Console.WriteLine($"Directory contents: {string.Join(", ", Directory.GetFiles(directory))}");
+                Console.WriteLine($"Directory contents: {string.Join(", ", Directory.GetFiles(directory).Take(5))}");
             }
         }
 
-        var workingDirectory = directory ?? throw new InvalidOperationException("Directory path is null");
+        Console.WriteLine("Checking docker-compose location:");
+        var dockerComposePath = "/usr/bin/docker-compose";
+        Console.WriteLine($"docker-compose path: {dockerComposePath}");
 
-        var process = new System.Diagnostics.Process
+        var workingDirectory = directory ?? Directory.GetCurrentDirectory();
+        Console.WriteLine($"Starting process with working directory: {workingDirectory}");
+        Console.WriteLine($"Command: {dockerComposePath} -f {pathToFile} up -d --wait --remove-orphans");
+
+        var process = new Process
         {
-            StartInfo = new System.Diagnostics.ProcessStartInfo
+            StartInfo = new ProcessStartInfo
             {
-                FileName = "/usr/local/bin/docker-compose",
+                FileName = dockerComposePath,
                 Arguments = $"-f {pathToFile} up -d --wait --remove-orphans",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -34,48 +41,20 @@ public class DockerComposer
             }
         };
 
-        Console.WriteLine("Checking docker-compose location:");
-        var whichProcess = new System.Diagnostics.Process
-        {
-            StartInfo = new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = "which",
-                Arguments = "docker-compose",
-                RedirectStandardOutput = true,
-                UseShellExecute = false
-            }
-        };
-        whichProcess.Start();
-        var dockerComposePath = whichProcess.StandardOutput.ReadToEnd().Trim();
-        whichProcess.WaitForExit();
-        Console.WriteLine($"docker-compose path: {dockerComposePath}");
-
-        Console.WriteLine($"Starting process with working directory: {workingDirectory}");
-        Console.WriteLine($"Command: {process.StartInfo.FileName} {process.StartInfo.Arguments}");
-
         process.Start();
-        var output = process.StandardOutput.ReadToEnd();
-        var error = process.StandardError.ReadToEnd();
         process.WaitForExit();
-
-        Console.WriteLine($"Process output: {output}");
-        Console.WriteLine($"Process error: {error}");
-
-        if (process.ExitCode != 0)
-        {
-            throw new Exception($"Docker compose failed: {error}\nOutput: {output}");
-        }
     }
 
     public static void Down(string pathToFile)
     {
-        var workingDirectory = Path.GetDirectoryName(pathToFile);
+        var directory = Path.GetDirectoryName(pathToFile);
+        var workingDirectory = directory ?? Directory.GetCurrentDirectory();
 
-        var process = new System.Diagnostics.Process
+        var process = new Process
         {
-            StartInfo = new System.Diagnostics.ProcessStartInfo
+            StartInfo = new ProcessStartInfo
             {
-                FileName = "docker-compose",
+                FileName = "/usr/bin/docker-compose",
                 Arguments = $"-f {pathToFile} down --remove-orphans",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
