@@ -3,8 +3,6 @@ name: .NET Blazor CI Pipeline
 
 # Defines when the workflow will run
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
 

@@ -16,7 +16,7 @@ jobs:
     - name: Set up .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '7.x.x'  # Specify the .NET version
+        dotnet-version: '8.x.x'  # Specify the .NET version
 
     - name: Build with dotnet
       run: dotnet build --configuration Release
