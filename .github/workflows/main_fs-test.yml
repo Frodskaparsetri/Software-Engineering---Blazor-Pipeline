@@ -1,59 +1,73 @@
+# This workflow automates the process of building and deploying an ASP.NET Core application to Azure Web Apps
+
+# Reference documentation for the actions used in this workflow
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
 name: Build and deploy ASP.Net Core app to Azure Web App - fs-test
 
+# Define when this workflow will run
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - main  # Triggers on pushes to the main branch
+  workflow_dispatch:  # Allows manual triggering of the workflow
 
 jobs:
+  # First job: Build the application
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use Ubuntu as the build environment
 
     steps:
+      # Step 1: Check out the source code from the repository
       - uses: actions/checkout@v4
 
+      # Step 2: Install the required .NET SDK version
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
+      # Step 3: Restore NuGet packages and project dependencies
       - name: Restore dependencies
         run: dotnet restore TodoTestSuite.sln
 
+      # Step 4: Build the application in Release configuration
       - name: Build with dotnet
         run: dotnet build TodoTestSuite.sln --configuration Release --no-restore
 
+      # Step 5: Publish the application to a directory
       - name: dotnet publish
         run: dotnet publish src/TodoTestSuite/TodoTestSuite.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
+      # Step 6: Package the published files as an artifact for deployment
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
 
+  # Second job: Deploy the application to Azure
   deploy:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build  # This job depends on the build job completing successfully
     environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+      name: 'Production'  # Specify the deployment environment
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}  # URL where the app will be available
     
     steps:
+      # Step 1: Download the artifact that was created in the build job
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
       
+      # Step 2: Deploy the application to Azure Web Apps
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'fs-test'
-          slot-name: 'Production'
-          package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CE7692300C304663AEF71D98C2FE486C }}
+          app-name: 'fs-test'  # Name of the Azure Web App
+          slot-name: 'Production'  # Deployment slot
+          package: .  # Location of the application package to deploy
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CE7692300C304663AEF71D98C2FE486C }}  # Authentication credentials for Azure
