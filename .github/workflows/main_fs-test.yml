@@ -21,11 +21,14 @@ jobs:
         with:
           dotnet-version: '8.x'
 
+      - name: Restore dependencies
+        run: dotnet restore TodoTestSuite.sln
+
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build TodoTestSuite.sln --configuration Release --no-restore
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish src/TodoTestSuite/TodoTestSuite.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
